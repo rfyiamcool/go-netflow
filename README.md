@@ -1,6 +1,6 @@
 ## go-netflow
 
-go-netflow, similar to c Nethogs.
+go-netflow, capture process in/out traffic, similar to c Nethogs.
 
 ### refer
 
