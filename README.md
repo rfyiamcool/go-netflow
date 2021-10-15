@@ -2,6 +2,8 @@
 
 go-netflow, capture process in/out traffic, similar to c Nethogs.
 
+[使用 golang 实现进程级流量监控](https://github.com/rfyiamcool/notes/blob/main/netflow.md)
+
 ### refer
 
 refer logic design link
