@@ -47,9 +47,7 @@ stdout:
 +---------+-------+------------------------------------------------+--------+--------+---------+---------+----------+
 ```
 
-### api usage
-
-#### simple usage:
+### sdk simple usage:
 
 ```go
 package main
@@ -97,51 +95,72 @@ func main() {
 }
 ```
 
-#### how to new netflow objcet:
+### how to use sdk of go-netflow:
 
-set custom pcap bpf filter.
+#### set pcap filename
+
+Don't save pcap file by default. 
+
+`WithStorePcap` option is used to save pcap file, use `tcpdump -nnr {filename}` command to read pcap file.
+
+```
+WithStorePcap(fpath string)
+```
+
+#### set custom pcap bpf filter.
 
 ```
 WithPcapFilter(filter string)
 ```
 
-limit netflow cpu/mem resource.
+#### set custom pcap bpf filter.
+
+example:
+
+- host xiaorui.cc and port 80
+- src host 123.56.223.52 and (dst port 3389 or 22)
+
+```
+WithPcapFilter(filter string)
+```
+
+#### limit netflow cpu/mem resource.
 
 ```
 WithLimitCgroup(cpu float64, mem int)
 ```
 
-set time to capturing packet.
+#### set time to capturing packet.
 
 ```
 WithCaptureTimeout(dur time.Duration)
 ```
 
-set time to rescan process and inode data.
+#### set time to rescan process and inode data.
 
 ```
 WithSyncInterval(dur time.Duration)
 ```
 
-set the number of worker to consume pcap queue.
+#### set the number of worker to consume pcap queue.
 
 ```
 WithWorkerNum(num int)
 ```
 
-set custom context.
+#### set custom context.
 
 ```
 WithCtx(ctx context.Context)
 ```
 
-set custom devices to capture.
+#### set custom devices to capture.
 
 ```
 WithBindDevices(devs []string)
 ```
 
-set pcap queue size. if the queue is full, new packet is thrown away.
+#### set pcap queue size. if the queue is full, new packet is thrown away.
 
 ```
 WithQueueSize(size int)
