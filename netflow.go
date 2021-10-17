@@ -13,6 +13,7 @@ import (
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
+	"github.com/google/gopacket/pcapgo"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -46,6 +47,10 @@ type Netflow struct {
 	captureTimeout time.Duration
 	syncInterval   time.Duration
 	pcapFilter     string // for pcap filter
+
+	pcapFileName string
+	pcapFile     *os.File
+	pcapWriter   *pcapgo.Writer
 
 	// for debug
 	debugMode bool
@@ -98,6 +103,13 @@ func WithLimitCgroup(cpu float64, mem int) optionFunc {
 func WithLogger(logger LoggerInterface) optionFunc {
 	return func(o *Netflow) error {
 		o.logger = logger
+		return nil
+	}
+}
+
+func WithStorePcap(fpath string) optionFunc {
+	return func(o *Netflow) error {
+		o.pcapFileName = fpath
 		return nil
 	}
 }
@@ -286,9 +298,31 @@ func (nf *Netflow) configureCgroups() error {
 	return err
 }
 
+func (nf *Netflow) configurePersist() error {
+	if len(nf.pcapFileName) == 0 {
+		return nil
+	}
+
+	f, err := os.Create(nf.pcapFileName)
+	if err != nil {
+		return err
+	}
+
+	nf.pcapFile = f
+	nf.pcapWriter = pcapgo.NewWriter(f)
+	nf.pcapWriter.WriteFileHeader(1024, layers.LinkTypeEthernet)
+	return nil
+}
+
 func (nf *Netflow) Start() error {
+	var err error
+	err = nf.configurePersist()
+	if err != nil {
+		return err
+	}
+
 	// linux cpu/mem by cgroup
-	err := nf.configureCgroups()
+	err = nf.configureCgroups()
 	if err != nil {
 		return err
 	}
@@ -303,6 +337,10 @@ func (nf *Netflow) Start() error {
 func (nf *Netflow) Stop() {
 	nf.cancel()
 	nf.finalize()
+
+	if nf.pcapFile != nil {
+		nf.pcapFile.Close()
+	}
 }
 
 func (nf *Netflow) finalize() {
@@ -494,10 +532,14 @@ func (nf *Netflow) handlePacket(packet gopacket.Packet) {
 		side = inputSide
 	}
 
-	// length := len(packet.Data())
+	// length := len(packet.Data()) // ip header + tcp header + tcp payload
 	length := len(tcpLayer.Payload)
 	addr := spliceAddr(localIP, localPort, remoteIP, remotePort)
 	nf.increaseTraffic(addr, int64(length), side)
+
+	if nf.pcapFile != nil {
+		nf.pcapWriter.WritePacket(packet.Metadata().CaptureInfo, packet.Data())
+	}
 
 	// fmt.Println(">>>>", addr, len(packet.Data()), len(tcpLayer.Payload), side)
 }

@@ -10,9 +10,10 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
 	"github.com/olekukonko/tablewriter"
-	"github.com/rfyiamcool/go-netflow"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cast"
+
+	"github.com/rfyiamcool/go-netflow"
 )
 
 var (
@@ -51,13 +52,17 @@ func start() {
 		syscall.SIGHUP, syscall.SIGUSR1, syscall.SIGUSR2,
 	)
 
+	defer func() {
+		nf.Stop()
+	}()
+
 	for {
 		select {
 		case <-sigch:
 			return
 
 		case <-timeout.C:
-			nf.Stop()
+			return
 
 		case <-ticker.C:
 			rank, err := nf.GetProcessRank(recentRankLimit, 3)
