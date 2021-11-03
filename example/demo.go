@@ -26,7 +26,7 @@ func main() {
 
 	var (
 		limit     = 5
-		recentSec = 3
+		recentSec = 5
 	)
 
 	rank, err := nf.GetProcessRank(limit, recentSec)
