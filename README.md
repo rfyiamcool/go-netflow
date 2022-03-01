@@ -216,3 +216,16 @@ type trafficEntry struct {
 	Out       int64 `json:"out"`
 }
 ```
+
+## Contributing
+
+Please see the [contributing guide](https://github.com/rfyiamcool/go-netflow/blob/main/CONTRIBUTING.md).
+## License
+
+Aya is distributed under the terms of either the [MIT license] or the [Apache License] (version
+2.0), at your option.
+
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in this crate by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any additional terms or conditions.
+
+[MIT license]: https://github.com/rfyiamcool/go-netflow/blob/main/LICENSE-MIT
+[Apache license]: https://github.com/rfyiamcool/go-netflow/blob/main/LICENSE-APACHE
