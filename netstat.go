@@ -1,6 +1,7 @@
 package netflow
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -65,8 +66,16 @@ func parseNetworkLines(tp string) ([]string, error) {
 		return nil, err
 	}
 
-	lines := strings.Split(string(data), "\n")
-	return lines[1 : len(lines)-1], nil
+	lines := bytes.Split(data, []byte("\n"))
+	var netString []string
+	fileLens := len(lines)
+	for i, line := range lines {
+		if i == 0 || i == fileLens-1 {
+			continue
+		}
+		netString = append(netString, string(line))
+	}
+	return netString, nil
 }
 
 func hex2dec(hexstr string) string {
